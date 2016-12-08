@@ -95,8 +95,7 @@ if (_needNearPlayerScan) then {
 
     TFAR_currentFarPlayers = [];
     {
-        private _spectator = _x getVariable ["tf_forceSpectator",false];
-        if ((isPlayer _x) and {!_spectator}) then {
+        if (isPlayer _x) then {
             TFAR_currentFarPlayers pushBackUnique _x;
         };
         true;

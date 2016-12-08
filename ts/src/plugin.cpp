@@ -501,8 +501,16 @@ void ts3plugin_onEditPostProcessVoiceDataEventStereo(TSServerID serverConnection
         return;
     }
     bool canSpeak = clientDataDir->myClientData->canSpeak;
-    //If we are dead we can't hear alive people and if we are alive we can't hear dead people
-    if (isSeriousModeEnabled(serverConnectionHandlerID, clientID) && (!alive || !clientData->isAlive())) {
+    //If we are dead we can't hear anyone in seriousMode. And if we are alive we can't hear the dead.
+
+    bool isSpectator = clientData->isSpectating;
+    //NonPure normalPlayer->Spectator
+    bool isNotHearableInNonPureSpectator = clientDataDir->myClientData->isSpectating && (clientData->isEnemyToPlayer && TFAR::config.get<bool>(Setting::spectatorNotHearEnemies));
+    //Other player is also a spectator. So we always hear him without 3D positioning
+    bool isHearableInPureSpectator = clientDataDir->myClientData->isSpectating && clientData->isSpectating;
+    bool isHearableInSpectator = isHearableInPureSpectator || !isNotHearableInNonPureSpectator;
+
+    if (!isHearableInSpectator && isSeriousModeEnabled(serverConnectionHandlerID, clientID) && (!alive || !clientData->isAlive())) {
         helpers::applyGain(samples, sampleCount, channels, 0.0f);
         return;
     }
@@ -525,7 +533,10 @@ void ts3plugin_onEditPostProcessVoiceDataEventStereo(TSServerID serverConnection
 
 
     //#### DIRECT SPEECH
-    if (myId != clientID && distanceFromClient_ <= clientData->voiceVolume) {
+    if (myId != clientID &&
+        !isSpectator && !isNotHearableInNonPureSpectator && //We don't hear spectators and enemy units(if enabled in config)....
+        distanceFromClient_ <= clientData->voiceVolume
+        ) {
         //Direct Speech
         //process voice
         auto relativePosition = myPosition.directionTo(clientData->getClientPosition());
@@ -553,7 +564,7 @@ void ts3plugin_onEditPostProcessVoiceDataEventStereo(TSServerID serverConnection
             helpers::processFilterStereo<Dsp::SimpleFilter<Dsp::Butterworth::LowPass<4>, MAX_CHANNELS>>(samples, channels, sampleCount, helpers::volumeAttenuation(distanceFromClient_, shouldPlayerHear, clientData->voiceVolume) * CANT_SPEAK_GAIN, (clientData->effects.getFilterCantSpeak("local_cantspeak")));
         }
 
-    } else {
+    } else if (!isHearableInPureSpectator) { //.... unless we are both spectating
         memset(samples, 0, channels * sampleCount * sizeof(short));
     }
 
@@ -800,7 +811,7 @@ void processTangentPress(TSServerID serverId, std::vector<std::string> &tokens, 
     senderClientData->setLastPositionUpdateTime(time);
     senderClientData->setCurrentTransmittingSubtype(subtype);
 
-	
+
 
 
 
