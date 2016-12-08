@@ -24,4 +24,4 @@
 
 params ["_player", "_value"];
 
-_player setVariable ["tf_forceSpectator", _value, true];
+_player setVariable ["TFAR_forceSpectator", _value, true];

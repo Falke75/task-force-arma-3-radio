@@ -20,4 +20,6 @@
 */
 params [["_unit",TFAR_currentUnit,[objNull]]];
 
+if (_unit getVariable ["TFAR_forceSpectator",false]) exitWith {(positionCameraToWorld [0,0,1]) vectorDiff (positionCameraToWorld [0,0,0])}
+
 getCameraViewDirection _unit

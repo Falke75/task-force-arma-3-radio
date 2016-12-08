@@ -26,7 +26,7 @@ if (_players_in_group < 10) then {
 } count  (TFAR_currentUnit nearEntities [["LandVehicle", "Air", "Ship"], TF_max_voice_volume+40]);
 
 {
-    if ((isPlayer _x) and {(alive _x) or {_x getVariable ["tf_forceSpectator",false]}}) then {
+    if ((isPlayer _x) and {(alive _x) or {_x getVariable ["TFAR_forceSpectator",false]}}) then {
         _result pushBack _x;
     };
     true;

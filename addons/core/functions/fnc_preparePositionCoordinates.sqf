@@ -83,7 +83,7 @@ if (!_nearPlayer) then {
     _terrainInterception = _unit call TFAR_fnc_calcTerrainInterception;
 };
 
-private _isSpectating = _unit getVariable ["tf_forceSpectator",false];
+private _isSpectating = _unit getVariable ["TFAR_forceSpectator",false];
 private _isEnemy = false;
 if (_isSpectating) then {
     _isEnemy = [playerSide, side _unit] call BIS_fnc_sideIsEnemy;
